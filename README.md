@@ -6,6 +6,9 @@ This is a school project made by four French students for class, whose goal is t
 
 ### About the command interface
 
+*Detailed explanation (in French) is available in [doc/interface.md](https://github.com/Zeroji/litebash/blob/master/doc/interface.md).*  
+*To command developers, please read [doc/commands.md](https://github.com/Zeroji/litebash/blob/master/doc/commands.md).*
+
 We will simply use this:
 
 ```
@@ -23,15 +26,4 @@ Have at least one comment per function/block.
 
 ### Using the Makefile
 
-The Makefile defines the following names:
-```
-CLASSIC = litebash
-STATIC  = bash_static
-LIBRARY = bash_dyn
-```
-By default, `make` and `make all` build the classic version of the code, you can use `make bash_static` or `make bash_dyn` for the other two.  
-You can use the following `make` commands:  
-- `make file` will attempt to build the program (`cat`,...) `src/lib/file.c` or the program `src/misc/file.c`
-- `make file.so` will attempt to build the shared library `src/lib/file.c` into `lib/file.so`
-- `make clean` will remove the `.o` files
-- `make cleanlibs` will remove the `.so` files
+This section was moved to [doc/makefile.md](https://github.com/Zeroji/litebash/blob/master/doc/makefile.md).

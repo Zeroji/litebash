@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 LIST("rev")
 
@@ -18,5 +19,6 @@ DEF(rev)
             /*f*/putc('\n', stdout);
         }
     }
+    free(buffer);
     return 0;
 }

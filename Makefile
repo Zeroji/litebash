@@ -1,5 +1,18 @@
+# Compiler flags
 CFLAGS	= -Wall -Werror -std=c99 -g -O0
+# Interpreter links
 CLINKS	= -lm -ldl -lreadline
+# Library links
+LLINKS	=
+# Compiler
+CC		= gcc $(CFLAGS)
+
+# Executable names
+CLASSIC = litebash
+STATIC  = bash_static
+DYNAMIC = bash_dyn
+
+# PLEASE AVOID EDITING UNDER THIS LINE #
 LIBSRC	= $(wildcard src/lib/*.c)
 LIBOBJ	= $(LIBSRC:src/lib/%.c=obj/%.o)
 
@@ -9,40 +22,35 @@ _CLASSIC = -D DEF\(func\)=int\ main\(int\ argc\ __attribute\(\(unused\)\),\ char
 	   -D DEF_ADD\(func\)=int\ func\(int\ argc\ __attribute\(\(unused\)\),\ char\ *argv[]\ __attribute__\(\(unused\)\)\)
 _STATIC  = -D DEF\(func\)=int\ func\(int\ argc\ __attribute\(\(unused\)\),\ char\ *argv[]\ __attribute__\(\(unused\)\)\) \
            -D DEF_ADD\(x\)=DEF\(x\) -D LIST\(...\)= -include src/lib/lib.h
-_LIBRARY = -D DEF\(func\)=int\ func\(int\ argc\ __attribute\(\(unused\)\),\ char\ *argv[]\ __attribute__\(\(unused\)\)\) \
+_DYNAMIC = -D DEF\(func\)=int\ func\(int\ argc\ __attribute\(\(unused\)\),\ char\ *argv[]\ __attribute__\(\(unused\)\)\) \
            -D DEF_ADD\(x\)=DEF\(x\) -D LIST\(...\)=char\ \*_FL\[\]=\{__VA_ARGS__,\ NULL\}\;
 
-CC		= gcc $(CFLAGS)
-
-CLASSIC = litebash
-STATIC  = bash_static
-LIBRARY = bash_dyn
-
+# Make all / misc
 all: $(CLASSIC)
 
 %: src/misc/%.c
 	$(CC) -o $@ $< $(CLINKS)
 
 # Classic build (separate executables)
-$(CLASSIC): src/main.c src/link_classic.c src/link.c
-	$(CC) -o $@ $^ $(CLINKS)
+$(CLASSIC): src/main.c src/interface_classic.c src/interface.c
+	$(CC) -o $@ $^ $(CLINKS) -D _CLASSIC
 
 %: src/lib/%.c
-	$(CC) -o $@ $< $(_CLASSIC) $(CLINKS)
+	$(CC) -o $@ $< $(_CLASSIC) $(LLINKS)
 
-# Standalone build (static)
-$(STATIC): src/main.c src/link_static.c src/link.c $(LIBOBJ)
-	$(CC) -o $@ $^ $(CLINKS)
+# Static build (standalone)
+$(STATIC): src/main.c src/interface_static.c src/interface.c src/interface_struct_tree.c $(LIBOBJ)
+	$(CC) -o $@ $^ $(CLINKS) -D _STATIC
 
 obj/%.o: src/lib/%.c
-	$(CC) -o $@ -c $< $(_STATIC) $(CLINKS)
+	$(CC) -o $@ -c $< $(_STATIC) $(LLINKS)
 
-# Shared library build
-$(LIBRARY): src/main.c src/link_library.c src/link.c
-	$(CC) -o $@ $^ $(CLINKS)
+# Dynamic build (shared libraries)
+$(DYNAMIC): src/main.c src/interface_dynamic.c src/interface.c src/interface_struct_tree.c
+	$(CC) -o $@ $^ $(CLINKS) -D _DYNAMIC
 
 obj/lib/%.o: src/lib/%.c
-	$(CC) -o $@ -c $< -fPIC $(CLINKS) $(_LIBRARY)
+	$(CC) -o $@ -c $< -fPIC $(LLINKS) $(_DYNAMIC)
 
 %.so: obj/lib/%.o
 	$(CC) -shared -Wl,-soname,$@ $< -o lib/$@
