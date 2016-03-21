@@ -2,19 +2,22 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "link.h"
+#include "interface.h"
 #include "lib/lib.h"
 
-int init() { return 0; }
+// No need to do anything here
+int load_commands(char UNUSED(*dir_name)) { return 0; }
+void unload_commands() { }
 
 int _exec(int argc, char *argv[]);
 
-command getfunc(char const *name) {
-    if(access(name, X_OK) == -1)
+Command getfunc(char *name) {
+    if(access(name, X_OK) == -1) // Checking file existence & X permissions
         return NULL;
     return _exec;
 }
 
+// Execute ./argv[0]
 int _exec(int UNUSED(argc), char *argv[]) {
     char path[1024] = "./";
     strcpy(path+2, argv[0]);
