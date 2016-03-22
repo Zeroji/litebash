@@ -4,6 +4,7 @@
 #include <strings.h>
 #include <string.h>
 #include <unistd.h>
+#include <getopt.h>
 
 /*
  This program display the same thing as the original unix command "ls",
@@ -23,6 +24,7 @@ void display_ls(char **l_fichier, int taille) {
     printf("%s ", l_fichier[m]);
     m++;
   }
+  printf("\n");
 }
 int compareFile(void const *a_file, void const *b_file) {
 
