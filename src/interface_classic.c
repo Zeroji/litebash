@@ -5,32 +5,32 @@
 #include "interface.h"
 #include "lib/lib.h"
 
-// No need to do anything here
-int load_commands(char UNUSED(*dir_name)) { return 0; }
+// Storing executable path
+char exec_path[1024];
+size_t exec_path_len;
+int load_commands(char UNUSED(*dir_name)) {
+    if(!getcwd(exec_path, 1024)) {
+        printf("Error getting current working directory\n");
+        return -1;
+    }
+    exec_path_len = strlen(exec_path);
+    exec_path[exec_path_len++] = '/';
+    return 0;
+}
 void unload_commands() { }
 
 int _exec(int argc, char *argv[]);
 
 Command getfunc(char *name) {
-    if(access(name, X_OK) == -1) // Checking file existence & X permissions
-        return NULL;
+    strcpy(exec_path+exec_path_len, name);
+    if(access(exec_path, X_OK) == -1) // Checking file existence & X permissions
+        return exec_func;
     return _exec;
 }
 
 // Execute ./argv[0]
-int _exec(int UNUSED(argc), char *argv[]) {
-    char path[1024] = "./";
-    strcpy(path+2, argv[0]);
-    argv[0]=path;
-    int pid=fork();
-    if(pid==-1) return -1;
-    if(pid)
-    {
-        int status;
-        waitpid(pid, &status, 0);
-        return status;
-    } else {
-        execvp(argv[0], argv);
-    }
-    return -1;
+int _exec(int argc, char *argv[]) {
+    strcpy(exec_path+exec_path_len, argv[0]);
+    argv[0]=exec_path;
+    return exec_func(argc, argv);
 }

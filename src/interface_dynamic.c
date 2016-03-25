@@ -99,5 +99,7 @@ void unload_commands() {
 }
 
 Command getfunc(char *name) {
-    return get_elem(name);
+    Command func = (Command)get_elem(name);
+    if(!func) return exec_func;
+    return func;
 }
