@@ -5,36 +5,120 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 /*
  This program display the same thing as the original unix command "ls",
  it means he display the name of each files in the directory given.
- He only allows to see or not the hidden files (-a)(-A) on the directory given as an arguments (as the original ls)
+ He allows to see or not the hidden files (-a)(-A), information on files (-l)(-h) on the directory given as an arguments (as the original ls)
 
  This program isn't finish yet.
  */
+LIST("ls")
 
-const int TAILLE_MAX = 100;
+const int TAILLE_MAX = 200;
 
-LIST("ls");
+void display_mode(unsigned long mode) {
+	char readable_mode[10]; //Chaine de caractère qui recevra le mode
+	sprintf(readable_mode,"%lo",mode);
 
-void display_ls(char **l_fichier, int taille) {
+	char droits[4] = "";
+	int i; //itérateur pour pouvoir choisir les 3 derniers chiffre du mode
+	for (i = (strlen(readable_mode)-3); i<strlen(readable_mode); i++) {
+		char tmp[2];
+		sprintf(tmp,"%c",readable_mode[i]);
+		strcat(droits,tmp);
+	}
+	// Ecriture des droits
+	for (i = 0; i<3 ; i++) {
+		if (droits[i] == '0') {printf("---");}
+		else if (droits[i] == '1') {printf("--x");}
+		else if (droits[i] == '2') {printf("-w-");}
+		else if (droits[i] == '3') {printf("-wx");}
+		else if (droits[i] == '4') {printf("r--");}
+		else if (droits[i] == '5') {printf("r-x");}
+		else if (droits[i] == '6') {printf("rw-");}
+		else {printf("rwx");}
+	}
+}
+
+void display_ls(char **l_fichier, int taille, int afficher_info, int readable_format, char *pathname) {
   int m = 0;
   while (m != taille) {
-    printf("%s ", l_fichier[m]);
+    if (afficher_info == 1) {
+    // affichage en mode ls -l
+
+    // déclaration de la structure
+      struct stat file;
+      // Création du pathname du fichier m
+      char carac[2];
+      strcpy(carac, "/");
+      //printf("%s", pathname);
+      char tmp[TAILLE_MAX];
+      strcpy(tmp, pathname);
+      strcat(tmp,carac);
+      strcat(tmp,l_fichier[m]);
+
+      stat(tmp, &file);
+      //Affichage du type de fichier
+      printf("File type:                ");
+
+		   switch (file.st_mode & S_IFMT) {
+		   case S_IFBLK:  printf("block device\n");            break;
+		   case S_IFCHR:  printf("character device\n");        break;
+		   case S_IFDIR:  printf("directory\nd");               break;
+		   case S_IFIFO:  printf("FIFO/pipe\n");               break;
+		   case S_IFLNK:  printf("symlink\nl");                 break;
+		   case S_IFREG:  printf("regular file\n-");            break;
+		   case S_IFSOCK: printf("socket\n");                  break;
+		   default:       printf("unknown?\n");                break;
+		   }
+      display_mode((unsigned long) file.st_mode); // mode <=> droits sur le fichier
+      printf(" %ld ", (long) file.st_nlink); // nombre de liens
+      printf("%ld   %ld ",(long) file.st_uid, (long) file.st_gid); // possesseur (UID | GID)
+      // Affichage de la taille du fichier
+      if (readable_format == 1) { // Si l'option taille compréhensible a été demandé
+    	  long long size = file.st_size;
+    	  long long size_K = size / (long long) 1000;
+    	  long long size_M = size / (long long) 1000000;
+    	  long long size_G = size / (long long) 1000000000;
+    	  if (size < (long long) 1000) {
+    		  printf("%lld ",size);
+    	  } else if (size_K < (long long) 1000) {
+    		  printf("%lldK ",size_K);
+    	  } else if (size_M < (long long) 1000) {
+    		  printf("%lldM ", size_M);
+    	  } else {printf("%lldG ", size_G);}
+      } else {
+    	  printf("%lld ",(long long) file.st_size);
+      }
+
+      printf("%s %s\n", ctime(&file.st_mtime), l_fichier[m]); // dernière tps de modification et nom de fichier
+    } else {
+      printf("%s ", l_fichier[m]);
+
+    }
     m++;
   }
   printf("\n");
 }
-int compareFile(void const *a_file, void const *b_file) {
 
-  //Déclaration des pointeurs sur les noms de fichier
-  char const *const *pa_file = a_file;
-  char const *const *pb_file = b_file;
-  return strcasecmp(*pa_file, *pb_file);
-  }
+/* fonction utilisateur de comparaison fournie a qsort() */
+static int compare (void const *a, void const *b)
+{
+   /* definir des pointeurs type's et initialise's
+      avec les parametres */
+   char const *const *pa = (const char**)a;
+   char const *const *pb = (const char**)b;
+
+   /* evaluer et retourner l'etat de l'evaluation (tri croissant) */
+   return strcasecmp (*pa, *pb);
+}
 
 DEF(ls) { //argv[n] contient le chemin d'accès à ls
+
   // Cette variable contiendra les différentes options données par l'utlisateur
   int option;
 
@@ -47,29 +131,45 @@ DEF(ls) { //argv[n] contient le chemin d'accès à ls
     int n = 1; // variable qui contiendra le rang du chemin à ls
     int fichier_cache = 0; //Par défaut on ne montre pas les fichiers caché
     int dossier_courantPere = 1; //Par défaut on montre les dossier . et .. si on veut montrer les fichiers cachés
+    int afficher_info = 0; //Afficher les informations des fichiers
+    int readable_format = 0; //Afficher les tailles de fichier dans des formats plus lisible (1M, 1Go)
 
     // On cherche l'emplacement du pathname
     while ((n < argc) && ((argv[n][0] == '-') && (argv[n][0] != '/'))) {
       n++;
     }
 
-    //Partie détermination des options demandé
+    char *pathname;
+    if (n == argc) {
+    	pathname = ".";
+    } else {
+    	pathname = argv[n];
+    }
+
+
+    //Partie détermination des options demandés
     do {
-      option = getopt(argc, argv, "aA");
+      option = getopt(argc, argv, "aAlh");
       // Si on veut montrer les fichiers caché
       if (option == 'a' || option == 'A') {
         fichier_cache = 1;
       }
       // Si on ne veut pas monter les fichiers .  et ..
       if (option == 'A') {
-        dossier_courantPere = 0;
+      	dossier_courantPere = 0;
       }
+      //Si on veut afficher les infos des fichiers
+      if (option == 'l' || option == 'h') {
+        afficher_info = 1;}
+      // Si on veut les tailles des fichiers soient compréhensible
+      if (option == 'h') {readable_format = 1;}
+
     } while (option != -1);
 
 
     // Prise en compte du cas où l'utilisateur ne donne pas d'argument
     if (n < argc) { //Si on répertoire est donnée
-      dirp = opendir(argv[n]);
+      dirp = opendir(pathname);
     } else { // Sinon on affiche les fichiers du répertoire courant
       dirp = opendir(".");
     }
@@ -98,14 +198,10 @@ DEF(ls) { //argv[n] contient le chemin d'accès à ls
       }
     }
 
-
-    //Affichage avant le tri
-    //display_ls(l_fichier, i);
-    //printf("\n");
     //Tri du tableau de fichier
-    qsort(l_fichier, (size_t)i, (size_t)sizeof(*l_fichier), compareFile);
-    //Affichage du tableau de fichier
-    display_ls(l_fichier, i);
+    qsort(l_fichier, (size_t)i, (size_t)sizeof(*l_fichier), compare);
+    //Affichage du ls
+    display_ls(l_fichier, i, afficher_info, readable_format, pathname);
 
     //Libération de mémoire
     closedir(dirp);
