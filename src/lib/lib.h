@@ -16,9 +16,12 @@ int ls(int argc, char *argv[]);
 int pwd(int argc, char *argv[]);
 
 //`mkdir` function. Create a directory.
-int mkdir(int argc, char *argv[]);
+int my_Mkdir(int argc, char *argv[]);
 
 //`rm` function. Remove file.
 int rm(int argc, char *argv[]);
+
+//`cp` function. Copy a file into an other.
+int cp(int argc, char *argv[]);
 
 #endif /* _LIB_H */
