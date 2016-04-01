@@ -12,4 +12,10 @@ int rev(int argc, char *argv[]);
 // `ls` function. List files and directories.
 int ls(int argc, char *argv[]);
 
+// `pwd` function. Print the path of the current directory.
+int pwd(int argc, char *argv[]);
+
+//`mkdir` function. Create a directory.
+int mkdir(int argc, char *argv[]);
+
 #endif /* _LIB_H */
