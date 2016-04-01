@@ -18,4 +18,7 @@ int pwd(int argc, char *argv[]);
 //`mkdir` function. Create a directory.
 int mkdir(int argc, char *argv[]);
 
+//`rm` function. Remove file.
+int rm(int argc, char *argv[]);
+
 #endif /* _LIB_H */
