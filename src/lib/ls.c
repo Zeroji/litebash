@@ -21,27 +21,27 @@ LIST("ls")
 const int TAILLE_MAX = 200;
 
 void display_mode(unsigned long mode) {
-	char readable_mode[10]; //Chaine de caractère qui recevra le mode
-	sprintf(readable_mode,"%lo",mode);
+  char readable_mode[10]; //Chaine de caractère qui recevra le mode
+  sprintf(readable_mode,"%lo",mode);
 
-	char droits[4] = "";
-	int i; //itérateur pour pouvoir choisir les 3 derniers chiffre du mode
-	for (i = (strlen(readable_mode)-3); i<strlen(readable_mode); i++) {
-		char tmp[2];
-		sprintf(tmp,"%c",readable_mode[i]);
-		strcat(droits,tmp);
-	}
-	// Ecriture des droits
-	for (i = 0; i<3 ; i++) {
-		if (droits[i] == '0') {printf("---");}
-		else if (droits[i] == '1') {printf("--x");}
-		else if (droits[i] == '2') {printf("-w-");}
-		else if (droits[i] == '3') {printf("-wx");}
-		else if (droits[i] == '4') {printf("r--");}
-		else if (droits[i] == '5') {printf("r-x");}
-		else if (droits[i] == '6') {printf("rw-");}
-		else {printf("rwx");}
-	}
+  char droits[4] = "";
+  int i; //itérateur pour pouvoir choisir les 3 derniers chiffre du mode
+  for (i = (strlen(readable_mode)-3); i<strlen(readable_mode); i++) {
+    char tmp[2];
+    sprintf(tmp,"%c",readable_mode[i]);
+    strcat(droits,tmp);
+  }
+  // Ecriture des droits
+  for (i = 0; i<3 ; i++) {
+    if (droits[i] == '0') {printf("---");}
+    else if (droits[i] == '1') {printf("--x");}
+    else if (droits[i] == '2') {printf("-w-");}
+    else if (droits[i] == '3') {printf("-wx");}
+    else if (droits[i] == '4') {printf("r--");}
+    else if (droits[i] == '5') {printf("r-x");}
+    else if (droits[i] == '6') {printf("rw-");}
+    else {printf("rwx");}
+  }
 }
 
 void display_ls(char **l_fichier, int taille, int afficher_info, int readable_format, char *pathname) {
@@ -63,39 +63,39 @@ void display_ls(char **l_fichier, int taille, int afficher_info, int readable_fo
 
       stat(tmp, &file);
       //Affichage du type de fichier
-      printf("File type:                ");
 
-		   switch (file.st_mode & S_IFMT) {
-		   case S_IFBLK:  printf("block device\n");            break;
-		   case S_IFCHR:  printf("character device\n");        break;
-		   case S_IFDIR:  printf("directory\nd");               break;
-		   case S_IFIFO:  printf("FIFO/pipe\n");               break;
-		   case S_IFLNK:  printf("symlink\nl");                 break;
-		   case S_IFREG:  printf("regular file\n-");            break;
-		   case S_IFSOCK: printf("socket\n");                  break;
-		   default:       printf("unknown?\n");                break;
-		   }
+       switch (file.st_mode & S_IFMT) {
+       case S_IFBLK:  printf("\nb");            break; //block device
+       case S_IFCHR:  printf("\nc");            break; //character device
+       case S_IFDIR:  printf("\nd");            break; //directory
+       case S_IFIFO:  printf("\np");            break; //FIFO/pipe
+       case S_IFLNK:  printf("\nl");            break; //symlink
+       case S_IFREG:  printf("\n-");            break; //regular file
+       case S_IFSOCK: printf("\ns");            break; //socket
+       default:       printf("\n?");            break; //unknown?
+       }
       display_mode((unsigned long) file.st_mode); // mode <=> droits sur le fichier
       printf(" %ld ", (long) file.st_nlink); // nombre de liens
       printf("%ld   %ld ",(long) file.st_uid, (long) file.st_gid); // possesseur (UID | GID)
       // Affichage de la taille du fichier
       if (readable_format == 1) { // Si l'option taille compréhensible a été demandé
-    	  long long size = file.st_size;
-    	  long long size_K = size / (long long) 1000;
-    	  long long size_M = size / (long long) 1000000;
-    	  long long size_G = size / (long long) 1000000000;
-    	  if (size < (long long) 1000) {
-    		  printf("%lld ",size);
-    	  } else if (size_K < (long long) 1000) {
-    		  printf("%lldK ",size_K);
-    	  } else if (size_M < (long long) 1000) {
-    		  printf("%lldM ", size_M);
-    	  } else {printf("%lldG ", size_G);}
+        long long size = file.st_size;
+        long long size_K = size / (long long) 1000;
+        long long size_M = size / (long long) 1000000;
+        long long size_G = size / (long long) 1000000000;
+        if (size < (long long) 1000) {
+          printf("%lld ",size);
+        } else if (size_K < (long long) 1000) {
+          printf("%lldK ",size_K);
+        } else if (size_M < (long long) 1000) {
+          printf("%lldM ", size_M);
+        } else {printf("%lldG ", size_G);}
       } else {
-    	  printf("%lld ",(long long) file.st_size);
+        printf("%lld ",(long long) file.st_size);
       }
-
-      printf("%s %s\n", ctime(&file.st_mtime), l_fichier[m]); // dernière tps de modification et nom de fichier
+			char *tmp_time = ctime(&file.st_mtime);
+			tmp_time[strlen(tmp_time)-1]='\0';
+      printf("%s %s", tmp_time, l_fichier[m]); // dernière tps de modification et nom de fichier
     } else {
       printf("%s ", l_fichier[m]);
 
@@ -141,9 +141,9 @@ DEF(ls) { //argv[n] contient le chemin d'accès à ls
 
     char *pathname;
     if (n == argc) {
-    	pathname = ".";
+      pathname = ".";
     } else {
-    	pathname = argv[n];
+      pathname = argv[n];
     }
 
 
@@ -156,7 +156,7 @@ DEF(ls) { //argv[n] contient le chemin d'accès à ls
       }
       // Si on ne veut pas monter les fichiers .  et ..
       if (option == 'A') {
-      	dossier_courantPere = 0;
+        dossier_courantPere = 0;
       }
       //Si on veut afficher les infos des fichiers
       if (option == 'l' || option == 'h') {
