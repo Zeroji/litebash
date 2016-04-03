@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,10 +5,10 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include "interface.h"
+#include "parser.h"
 
 char path[4096];
 
-int cd(char *name);
 const char *delim = " ";
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
@@ -17,53 +16,29 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     // Searching for libraries in `pwd`/lib/
     char lib_path[1024];
     getcwd(lib_path, 1024);
-    strcpy(lib_path + strlen(lib_path), "/lib/"),
-    load_commands(lib_path);
+    sprintf(lib_path + strlen(lib_path), "/%s/%s", dirname(argv[0]), "lib/");
+    if(load_commands(lib_path)) return EXIT_FAILURE;
+    atexit(unload_commands);
 
     getcwd(path, 4096);
 
     // Command input (or taking from arguments)
     char *line=NULL;
+    char prompt[4096];
 
     while(1) {
         do {
             free(line);
-            if(!(line = readline("lb $ ")))
+            getcwd(path, 4096);
+            sprintf(prompt, "lb %s $ ", path);
+            if(!(line = readline(prompt)))
                 break;
         } while(!strlen(line));
         if(!line) { printf("exit\n"); break; }
 
-        char *name = strtok(line, delim);
-
-        if(!strcmp(name, "exit")) {
-            break;
-        } else if(!strcmp(name, "cd")) {
-            cd(strtok(NULL, delim));
-        } else {
-            Command func=getfunc(name);
-            char *fargv[1024];
-            if((fargv[0]=name)) {
-                int n=0;
-                while(n<1024 && (fargv[++n]=strtok(NULL, delim)));
-                int fargc = n;
-                int result = call(func, fargc, fargv, stdin, stdout, stderr, 0);
-                if(result) printf("Execution error\n");
-            }
-        }
+        parse(line, stdin, stdout, stderr);
     }
 
     free(line);
-    unload_commands();
-    return 0;
-}
-
-int cd(char *name) {
-    if(chdir(name)) {
-        if(errno == EACCES)
-            fprintf(stderr, "lb: cd: %s: Permission denied\n", name);
-        if(errno == ENOENT)
-            fprintf(stderr, "lb: cd: %s: No such file or directory\n", name);
-        return -1;
-    }
     return 0;
 }

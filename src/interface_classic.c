@@ -29,8 +29,8 @@ Command getfunc(char *name) {
 }
 
 // Execute ./argv[0]
-int _exec(int argc, char *argv[]) {
+int _exec(int argc __attribute__((unused)), char *argv[]) {
     strcpy(exec_path+exec_path_len, argv[0]);
     argv[0]=exec_path;
-    return exec_func(argc, argv);
+    return execv(argv[0], argv);
 }
