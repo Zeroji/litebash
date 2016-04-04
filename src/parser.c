@@ -12,6 +12,8 @@
 #define STREAM_ERR ']'
 #define PIPE_OR '|'
 #define ASYNC_AND '&'
+#define SEPARATOR ';'
+#define QUOTE '"'
 
 
 typedef enum { ARGV, IN, OUT, ERR, BOTH } STATE;
@@ -43,9 +45,9 @@ int parse(char *line, FILE *std_in, FILE *std_out, FILE *std_err) {
     {
         c=line[i++];
         // word delimiters (e.g. `ls|head>output` works)
-        char SPECIALS[] = {STREAM_IN, STREAM_OUT, STREAM_ERR, PIPE_OR, ASYNC_AND, SPACE, EOL};
-        int iter;
-        for(iter = 0; bi && iter < 7; iter ++) // going to 7 for \0
+        char SPECIALS[] = {STREAM_IN, STREAM_OUT, STREAM_ERR, PIPE_OR, ASYNC_AND, SPACE, SEPARATOR, QUOTE, EOL};
+        size_t iter;
+        for(iter = 0; bi && iter < sizeof(SPECIALS); iter ++) // going to 7 for \0
             if(c==SPECIALS[iter]) {
                 buffer[bi++] = EOL;
                 if(state==ARGV) { // allocating size for new arg & copying
@@ -103,9 +105,18 @@ int parse(char *line, FILE *std_in, FILE *std_out, FILE *std_err) {
         switch(c) {
             case EOL:
             case SPACE:
-            // `|` and `&` are handled later
+            // `|`, `&` and `;` are handled later
             case PIPE_OR:
             case ASYNC_AND:
+            case SEPARATOR:
+                break;
+            case QUOTE:
+                while(line[i] != '"' && line[i] != '\0') {
+                    c = line[i++];
+                    if(c == '\\' && line[i] == '"')
+                        c = line[i++];
+                    buffer[bi++] = c;
+                }
                 break;
             case STREAM_IN:
                 switch(state) {
@@ -152,19 +163,20 @@ int parse(char *line, FILE *std_in, FILE *std_out, FILE *std_err) {
             default:
                 buffer[bi++] = c;
         }
-        if(c == PIPE_OR || c == ASYNC_AND || c == EOL) {
+        if(c == PIPE_OR || c == ASYNC_AND || c == SEPARATOR || c == EOL) {
             if(!fargc) goto error;
-            int state = 0; // pipe
+            int state = 0; // separator
             char d = line[i];
 
-            if(c == ASYNC_AND) state = 1; // ASYNC
-            if(c == PIPE_OR && d == PIPE_OR) state = 2; // OR
-            if(c == ASYNC_AND && d == ASYNC_AND) state = 3; // AND
-            if(c == EOL) state = 4; // Nothing else
-            if(!state) out = tmpfile();
+            if(c == PIPE_OR) state = 1; // PIPE
+            if(c == ASYNC_AND) state = 2; // ASYNC
+            if(c == PIPE_OR && d == PIPE_OR) state = 3; // OR
+            if(c == ASYNC_AND && d == ASYNC_AND) state = 4; // AND
+            if(c == EOL) state = 5; // Nothing else
+            if(state == 1) out = tmpfile();
             fargv[fargc] = NULL;
 
-            // printf("Calling %s with async %d, state %d, args:", fargv[0], state==1, state);
+            // printf("Calling %s with async %d, state %d, args:", fargv[0], state==2, state);
             // int it; for(it=1;it<fargc;it++) printf(" %s", fargv[it]);
             // printf("\n");
 
@@ -174,15 +186,15 @@ int parse(char *line, FILE *std_in, FILE *std_out, FILE *std_err) {
             } else if(!strcmp("cd", fargv[0])) {
                 if(fargc > 1) res = cd(fargv[1]);
             } else {
-                res = call(getfunc(fargv[0]), fargc, fargv, in, out, err, state==1);
+                res = call(getfunc(fargv[0]), fargc, fargv, in, out, err, state==2);
             }
 
-            if(!state) rewind(std_in = out);
-            if(state == 1) printf("[-] %d\n", res);
-            if(state == 2 && !res) return 1;
-            if(state == 3 && res) return 1;
-            if(state == 4) return res;
-            return parse(line + i + state/2, std_in, std_out, std_err);
+            if(state == 1) rewind(std_in = out);
+            if(state == 2) printf("[-] %d\n", res);
+            if(state == 3 && !res) return 1;
+            if(state == 4 && res) return 1;
+            if(state == 5) return res;
+            return parse(line + i + state/3, std_in, std_out, std_err);
         }
     } while(1);
 

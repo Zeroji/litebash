@@ -6,7 +6,9 @@
 
 // execvp wrapper
 int exec_func(int argc __attribute__((unused)), char *argv[]) {
-    return execvp(argv[0], argv);
+    execvp(argv[0], argv);
+    printf("%s: command not found\n", argv[0]);
+    return -1;
 }
 
 // Call a function with given arguments and streams, possibly asynchronously
