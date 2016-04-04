@@ -8,8 +8,14 @@
 int load_commands(char *dir_name __attribute__((unused))) {
     // Add your commands here to have them available in static mode
     ADD(cat);
-    ADD(rev);
+    ADD(chmod_lb);
+    ADD(cp);
+    ADD(echo);
     ADD(ls);
+    ADD(mkdir_lb);
+    ADD(pwd);
+    ADD(rev);
+    ADD(rm);
     return is_empty();
 }
 

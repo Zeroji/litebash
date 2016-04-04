@@ -93,8 +93,8 @@ void display_ls(char **l_fichier, int taille, int afficher_info, int readable_fo
       } else {
         printf("%lld ",(long long) file.st_size);
       }
-			char *tmp_time = ctime(&file.st_mtime);
-			tmp_time[strlen(tmp_time)-1]='\0';
+      char *tmp_time = ctime(&file.st_mtime);
+      tmp_time[strlen(tmp_time)-1]='\0';
       printf("%s %s", tmp_time, l_fichier[m]); // dernière tps de modification et nom de fichier
     } else {
       printf("%s ", l_fichier[m]);
