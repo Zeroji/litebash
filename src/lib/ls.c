@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <pwd.h>
+#include <grp.h>
 
 /*
  This program display the same thing as the original unix command "ls",
@@ -16,7 +18,8 @@
 
  This program isn't finish yet.
  */
-LIST("ls")
+
+ LIST("ls")
 
 const int TAILLE_MAX = 200;
 
@@ -76,7 +79,10 @@ void display_ls(char **l_fichier, int taille, int afficher_info, int readable_fo
        }
       display_mode((unsigned long) file.st_mode); // mode <=> droits sur le fichier
       printf(" %ld ", (long) file.st_nlink); // nombre de liens
-      printf("%ld   %ld ",(long) file.st_uid, (long) file.st_gid); // possesseur (UID | GID)
+
+      struct passwd *pwd = getpwuid(file.st_uid);
+      struct group *grd = getgrgid(file.st_gid);
+      printf("%s %s ",pwd->pw_name, grd->gr_name); // possesseur (UID | GID)
       // Affichage de la taille du fichier
       if (readable_format == 1) { // Si l'option taille compréhensible a été demandé
         long long size = file.st_size;
