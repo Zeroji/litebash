@@ -13,7 +13,7 @@ mode_t set_mode(char *arg, mode_t initial) {
    */
   //unsigned int L_USR[7]=[S_IXUSR,S_IWUSR,(S_IXUSR|S_IWUSR),S_IRUSR,(S_IXUSR|S_IRUSR),(S_IWUSR|S_IRUSR),(S_IXUSR|S_IWUSR|S_IRUSR)];
 
-  mode_t mode = NULL;
+  mode_t mode =NULL;
   if (arg[0] == '0' || arg[0] == '1' || arg[0] == '2' || arg[0] == '3' || arg[0] == '4' || arg[0] == '5' || arg[0] == '6' || arg[0] == '7' || arg[0] == '8' || arg[0] == '9' ) {
     if (strlen(arg) == 3) {
       // On a donc une commande du type "chmod 055 ./x"
