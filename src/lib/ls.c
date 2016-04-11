@@ -128,7 +128,9 @@ DEF(ls) { //argv[n] contient le chemin d'accès à ls
   // Cette variable contiendra les différentes options données par l'utlisateur
   int option;
 
-  //Initialisation du tableau qui contiendra les noms de fichier à afficher
+  /*
+   * Initialisation du tableau qui contiendra les noms de fichier à afficher
+   */
   char *l_fichier[TAILLE_MAX];
   int i = 0; //Initialisation de l'itérateur du tableau
 
