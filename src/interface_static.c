@@ -16,6 +16,7 @@ int load_commands(char *dir_name __attribute__((unused))) {
     ADD(pwd);
     ADD(rev);
     ADD(rm);
+    ADD(chown);
     return is_empty();
 }
 

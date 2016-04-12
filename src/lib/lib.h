@@ -30,4 +30,7 @@ int rev(int argc, char *argv[]);
 // `rm` function. Remove file.
 int rm(int argc, char *argv[]);
 
+// chown function. Change the owner and the group owner of a file.
+int chown(int argc, char *argv[]);
+
 #endif /* _LIB_H */
