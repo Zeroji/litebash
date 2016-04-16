@@ -12,6 +12,9 @@ int chmod_lb(int argc, char *argv[]);
 // `cp` function. Copy a file into an other.
 int cp(int argc, char *argv[]);
 
+// `mv` function. move or rename a file
+int mv(int argc, char *argv[]);
+
 // `echo` function. Prints arguments.
 int echo(int argc, char *argv[]);
 
