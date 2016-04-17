@@ -16,19 +16,6 @@
 #include "connect_lb.h"     // pour fin() ;
 #include "shared.h"         // pour BUFFER_SIZE ; BUFFER_SIZE_TO_READ ;
 
-// coding : utf-8
-// maj : 04/04/2016 19:44
-
-/*
-http://broux.developpez.com/articles/c/sockets/
-TCP côté client
-    socket
-    connect
-    send
-    recv
-    close
-*/
-
 int to_server_socket;
 
 enum Etats {
@@ -37,9 +24,9 @@ enum Etats {
     EFin
 } curEtat = ELecture;
 
-//LIST("connect_lb");
+LIST("connect_lb");
 
-int main(int argc, char **argv) {//DEF(connect_lb) {
+DEF(connect_lb) {
     
     /*
     === Tests d'entrée ===
