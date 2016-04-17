@@ -51,6 +51,11 @@ DEF(head) {
         }
     }
 
+    if(lines < 0) {
+        printf("head doesn't handle negative lines (yet)\n");
+        return -1;
+    }
+
     if(verbosity == 1)
         verbosity = optind + 1 < argc;
 

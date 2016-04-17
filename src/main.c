@@ -2,14 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
-#include <readline/history.h>
 #include <unistd.h>
 #include "interface.h"
 #include "parser.h"
 
 char path[4096];
-
-const char *delim = " ";
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
 
@@ -18,6 +15,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     getcwd(lib_path, 1024);
     sprintf(lib_path + strlen(lib_path), "/%s/%s", dirname(argv[0]), "lib/");
     if(load_commands(lib_path)) return EXIT_FAILURE;
+    // Unloading commands upon exit
     atexit(unload_commands);
 
     getcwd(path, 4096);
