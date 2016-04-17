@@ -19,6 +19,8 @@ int load_commands(char *dir_name __attribute__((unused))) {
     ADD(rev);
     ADD(rm);
     ADD(chown_lb);
+    ADD(connect_lb);
+    ADD(serveur_lb);
     return is_empty();
 }
 
