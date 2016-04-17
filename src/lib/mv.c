@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-//pove or rename a file
+//move or rename a file
 LIST("mv")
 
 DEF(mv){
