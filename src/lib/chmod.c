@@ -8,6 +8,8 @@ LIST("chmod_lb")
 
 mode_t set_mode(char *arg, mode_t initial) {
   /*
+   * Cette fonction permet de créer une variable mode_t à partir de l'arguments donné avec chmod
+   * 
    * arg1 = droits_avant modification (cas où on a une commande du type "chmod u+x ./x"
    * arg = droits_après modification
    */
@@ -17,7 +19,8 @@ mode_t set_mode(char *arg, mode_t initial) {
   if (arg[0] == '0' || arg[0] == '1' || arg[0] == '2' || arg[0] == '3' || arg[0] == '4' || arg[0] == '5' || arg[0] == '6' || arg[0] == '7' || arg[0] == '8' || arg[0] == '9' ) {
     if (strlen(arg) == 3) {
       // On a donc une commande du type "chmod 055 ./x"
-
+      // Création du mode
+      
       //User
       if (arg[0] == '1') {
         mode = mode|S_IXUSR;
@@ -104,15 +107,16 @@ DEF(chmod_lb) {
       printf("Fichier manquant");
     } else {
       pathname = argv[2];
-      //printf("%s", pathname);
       struct stat file;
       stat(pathname, &file);
-      //printf(" %lld",(long long) file.st_size);
       sprintf(droits_avant,"%s",display_mode_2((unsigned long) file.st_mode, droits_avant));
       //printf(" %s",droits_avant);
+      
+      // Application du chmod
       if (chmod(pathname, set_mode(argv[1],file.st_mode)) == -1) {
         printf("Modification error");
       }
+      
       stat(pathname, &file);
       sprintf(droits_apres,"%s",display_mode_2((unsigned long) file.st_mode, droits_apres));
       //printf(" %s",droits_apres);
