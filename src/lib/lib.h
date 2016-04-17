@@ -9,6 +9,9 @@ int cat(int argc, char *argv[]);
 // `chmod` function. Changes files rights.
 int chmod_lb(int argc, char *argv[]);
 
+// chown function. Change the owner and the group owner of a file.
+int chown_lb(int argc, char *argv[]);
+
 // `cp` function. Copy a file into an other.
 int cp(int argc, char *argv[]);
 
@@ -17,6 +20,9 @@ int mv(int argc, char *argv[]);
 
 // `echo` function. Prints arguments.
 int echo(int argc, char *argv[]);
+
+// 'head' function. Prints the first 10 lines of a file.
+int head(int argc, char*argv[]);
 
 // `ls` function. List files and directories.
 int ls(int argc, char *argv[]);
@@ -32,8 +38,5 @@ int rev(int argc, char *argv[]);
 
 // `rm` function. Remove file.
 int rm(int argc, char *argv[]);
-
-// chown function. Change the owner and the group owner of a file.
-int chown(int argc, char *argv[]);
 
 #endif /* _LIB_H */

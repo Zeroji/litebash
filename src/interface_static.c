@@ -11,12 +11,14 @@ int load_commands(char *dir_name __attribute__((unused))) {
     ADD(chmod_lb);
     ADD(cp);
     ADD(echo);
+    ADD(head);
     ADD(ls);
     ADD(mkdir_lb);
+    ADD(mv);
     ADD(pwd);
     ADD(rev);
     ADD(rm);
-    ADD(chown);
+    ADD(chown_lb);
     return is_empty();
 }
 
