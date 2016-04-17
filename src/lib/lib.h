@@ -39,4 +39,10 @@ int rev(int argc, char *argv[]);
 // `rm` function. Remove file.
 int rm(int argc, char *argv[]);
 
+// `connect_lb` function. Connect to a server to execute remote commands.
+int connect_lb(int argc, char *argv[]);
+
+// `serveur_lb` function. Create a server.
+int serveur_lb(int argc, char *argv[]);
+
 #endif /* _LIB_H */
