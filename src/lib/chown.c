@@ -19,7 +19,7 @@ LIST("chown");
 const int CHAR_MAX = 1024;
 
 DEF(chown) {
-	extern int errno;
+	extern int errno; // Variable afin de faire apparaître les erreurs errno lors de l'utilisation de chown
 	int dernier = argc-1;
 	// S'il n'y a pas d'argument on renvoie une erreur
 	if (argc > 2) { //Pour fonctionner chown doit avoir au minimum 2 arguments
