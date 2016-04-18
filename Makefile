@@ -33,6 +33,10 @@ all: $(CLASSIC)
 %: src/misc/%.c
 	$(CC) -o $@ $< $(CLINKS)
 
+# Make server
+server: $(CFILES) src/interface_classic.c src/serveur_lb.c
+	$(CC) -o $@ $^ $(CLINKS) $(_CLASSIC) -D _CLASSIC
+
 # Classic build (separate executables)
 $(CLASSIC): $(CFILES) src/interface_classic.c
 	$(CC) -o $@ $^ $(CLINKS) -D _CLASSIC
