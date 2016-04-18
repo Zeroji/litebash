@@ -34,7 +34,7 @@ all: $(CLASSIC)
 	$(CC) -o $@ $< $(CLINKS)
 
 # Make server
-server: $(CFILES) src/interface_classic.c src/serveur_lb.c
+server: src/interface.c src/parser.c src/interface_classic.c src/serveur_lb.c
 	$(CC) -o $@ $^ $(CLINKS) $(_CLASSIC) -D _CLASSIC
 
 # Classic build (separate executables)
