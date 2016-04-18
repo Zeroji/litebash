@@ -180,7 +180,7 @@ DEF(serveur_lb) {
                                 fcntl(fd, F_SETFL, flags);
                                 
                                 pFile_out = tmpfile();
-                                //pFile_err = tmpfile();
+                                pFile_err = tmpfile();
                                 curEtat = ELecture_cmd;
                         break;
                         
@@ -189,7 +189,7 @@ DEF(serveur_lb) {
                                 /* fils terminé(s) */
                                 fclose(pFile_in);
                                 fclose(pFile_out);
-                                //fclose(pFile_err);
+                                fclose(pFile_err);
                         break;
                     }
 
